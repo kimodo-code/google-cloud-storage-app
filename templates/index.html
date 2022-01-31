@@ -1,0 +1,94 @@
+<!doctype html>
+<html>
+<head>
+  <title>Cloud file storage</title>
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+  <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="https://www.gstatic.com/firebasejs/ui/4.4.0/firebase-ui-auth.js"></script>
+  <link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/4.4.0/firebase-ui-auth.css" />
+</head>
+<body>
+
+  <h1>Cloud file storage</h1>
+
+  <div id="firebase-auth-container"></div>
+
+  <button id="sign-out" hidden="true">Sign out</button>
+
+  <div id="login-info" hidden="true">
+      <h2>Login Info</h2>
+      {% if user_data %}
+        <dl>
+            <dt>Name:</dt><dd>{{ user_data['name'] }}</dd>
+            <dt>Email:</dt><dd>{{ user_data['email'] }}</dd>
+        </dl>
+ <form action="/add_directory" method ="post">
+          Directory name: <input type = "text" name = "dir_name"/><input type="submit"/>
+      </form>
+
+            <form action="upload_file" method = "post" enctype = "multipart/form-data">
+            Upload File: <input type="file" name = "file_name" /> <input type = "submit"/>
+      </form>
+
+      Current Working Directory: <textarea name="text" cols="50" rows="1" id = "result"></textarea>
+      <input type="hidden" id="root_folder" name="root_folder" value="{{special_root_dir_var}}">
+      <input type="hidden" id="session" name="session" value="{{session['folder']}}">
+<script>
+    var session = document.getElementById("session").value;
+    var root_folder = document.getElementById("root_folder").value;
+
+    if(session == root_folder)
+    {
+        document.getElementById("result").innerHTML = null;
+    }
+        else
+    {
+        document.getElementById("result").innerHTML = session;
+    }
+
+
+
+</script>
+
+
+      <form action="up_directory/{{session['folder']}}" method = "post" >
+             <input type="submit" name = "up_directory" value = "Go up directory" />
+      </form>
+      <h1> list of directories</h1><br/>
+        {% for i in directory_list %}
+
+<!-- take out the trailing slash for dynamic url -->
+      <form action="/delete_directory/{{i.name[:-1]}}" method = "post">
+        {{i.name}}   <input type = "submit" name = "delete_directory" value = "Delete" />
+      </form>
+
+            <form action="/change_directory/{{i.name[:-1]}}" method = "post">
+       <input type = "submit" name = "change_directory" value = "Select" />
+      </form>
+
+      {% endfor %}
+
+            <h1> list of files</h1><br/>
+        {% for i in file_list %}
+      <form action = "/download_file/{{ i.name }}" method = "post">
+          {{i.name}}<input type="submit" value = "download"/><br/>
+      </form>
+            <form action = "/delete_file/{{ i.name }}" method = "post">
+          <input type="submit" value = "delete"/><br/>
+      </form>
+      {% endfor %}
+
+
+
+
+      {% elif error_message %}
+        <p>Error Message: {{ error_message }}</p>
+      {% endif %}
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/7.14.5/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/7.8.0/firebase-auth.js"></script>
+  <script src="{{ url_for('static', filename='app-setup.js') }}"></script>
+
+</body>
+</html>
